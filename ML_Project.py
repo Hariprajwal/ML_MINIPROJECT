@@ -42,7 +42,7 @@ if st.button("Predict"):
         st.write("Please enter all values.")
 
 # Local background image
-image_path = "background.jpg"  # Replace with the path to your local image file
+image_path = "background.jpeg"  # Replace with the path to your local image file
 background_image = get_base64_of_image(image_path)
 
 # Styling (Including local background image)
