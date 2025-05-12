@@ -1,5 +1,6 @@
 import streamlit as st
 import base64
+import os
 
 # Function to encode the image file to base64 for embedding it
 def get_base64_of_image(image_file):
@@ -24,55 +25,116 @@ def decision_tree_predict(marks, attendance, assignments, extra):
     else:
         return "Fail"
 
-# Streamlit UI
-st.title("Student Performance Predictor")
+# Streamlit UI Configuration
+st.set_page_config(
+    page_title="Student Performance Predictor",
+    page_icon="🎓",
+    layout="centered"
+)
 
-# Input fields for the form
-marks = st.number_input("Internal Assessment Marks (0-100)", min_value=0, max_value=100)
-attendance = st.number_input("Attendance % (0-100)", min_value=0, max_value=100)
-assignments = st.number_input("Assignment Score (0-100)", min_value=0, max_value=100)
-extra = st.number_input("Extracurricular Participation Score (0-100)", min_value=0, max_value=100)
+# Local background image handling
+try:
+    image_path = "background.jpeg"
+    background_image = get_base64_of_image(image_path)
+except FileNotFoundError:
+    st.error("Background image not found! Please check the image file.")
+    background_image = None
 
-# Prediction logic
-if st.button("Predict"):
-    if marks is not None and attendance is not None and assignments is not None and extra is not None:
-        result = decision_tree_predict(marks, attendance, assignments, extra)
-        st.write(f"**Prediction: {result}**")
-    else:
-        st.write("Please enter all values.")
-
-# Local background image
-image_path = "background.jpeg"  # Replace with the path to your local image file
-background_image = get_base64_of_image(image_path)
-
-# Styling (Including local background image)
+# Page styling with enhanced visibility
 st.markdown(f"""
     <style>
-        .css-1d391kg {{
-            font-family: 'Segoe UI', sans-serif;
-            background-color: #f0f4f8;
-            padding: 40px;
+        /* Full-page background */
+        .stApp {{
             background-image: url('data:image/jpeg;base64,{background_image}');
             background-size: cover;
             background-position: center;
-            height: 100vh;
-            color: white;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            min-height: 100vh;
         }}
-        .stButton > button {{
-            background-color: #007bff;
-            color: white;
-            font-size: 16px;
+
+        /* Content container styling */
+        .main {{
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 2rem;
+            border-radius: 15px;
+            backdrop-filter: blur(8px);
+        }}
+
+        /* Text styling */
+        h1, h2, h3, h4, h5, h6, .stMarkdown {{
+            color: white !important;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+        }}
+
+        /* Input field styling */
+        .stNumberInput label, .stNumberInput input {{
+            color: white !important;
+        }}
+        .stNumberInput input {{
+            background-color: rgba(255, 255, 255, 0.9) !important;
+            color: #333 !important;
             border-radius: 8px;
-            cursor: pointer;
+        }}
+
+        /* Button styling */
+        .stButton > button {{
+            background-color: #007bff !important;
+            color: white !important;
+            border-radius: 8px;
+            padding: 10px 24px;
+            transition: all 0.3s ease;
+            border: none;
         }}
         .stButton > button:hover {{
-            background-color: #0056b3;
+            background-color: #0056b3 !important;
+            transform: scale(1.05);
         }}
-        .stTitle {{
-            color: white;
-        }}
-        .stMarkdown {{
-            color: white;
+
+        /* Prediction result styling */
+        .prediction {{
+            font-size: 1.4rem;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.15);
         }}
     </style>
 """, unsafe_allow_html=True)
+
+# Main content container
+with st.container():
+    st.markdown('<div class="main">', unsafe_allow_html=True)
+    
+    st.title("Student Performance Predictor 🎓")
+    st.markdown("Predict student outcomes based on academic and extracurricular performance")
+
+    # Input fields for the form
+    col1, col2 = st.columns(2)
+    with col1:
+        marks = st.number_input("Internal Assessment Marks (0-100)", 
+                               min_value=0, max_value=100, value=70)
+        attendance = st.number_input("Attendance % (0-100)", 
+                                    min_value=0, max_value=100, value=80)
+    with col2:
+        assignments = st.number_input("Assignment Score (0-100)", 
+                                     min_value=0, max_value=100, value=60)
+        extra = st.number_input("Extracurricular Participation Score (0-100)", 
+                               min_value=0, max_value=100, value=50)
+
+    # Prediction logic
+    if st.button("📊 Get Prediction"):
+        if all([val is not None for val in [marks, attendance, assignments, extra]]):
+            result = decision_tree_predict(marks, attendance, assignments, extra)
+            result_color = "#28a745" if result == "Pass" else "#dc3545"
+            st.markdown(f'<div class="prediction" style="color: {result_color}">Prediction: {result}</div>', 
+                        unsafe_allow_html=True)
+        else:
+            st.warning("Please fill in all fields before predicting.")
+
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# Optional debug section (remove in production)
+# st.write(f"Image loaded: {background_image[:50] if background_image else 'None'}...")
