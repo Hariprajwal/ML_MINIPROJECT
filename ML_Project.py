@@ -1,4 +1,10 @@
 import streamlit as st
+import base64
+
+# Function to encode the image file to base64 for embedding it
+def get_base64_of_image(image_file):
+    with open(image_file, "rb") as f:
+        return base64.b64encode(f.read()).decode()
 
 # Decision tree logic implemented manually
 def decision_tree_predict(marks, attendance, assignments, extra):
@@ -35,11 +41,38 @@ if st.button("Predict"):
     else:
         st.write("Please enter all values.")
 
-# Styling (this part can be customized as needed)
-st.markdown("""
+# Local background image
+image_path = "background.jpg"  # Replace with the path to your local image file
+background_image = get_base64_of_image(image_path)
+
+# Styling (Including local background image)
+st.markdown(f"""
     <style>
-        .css-1d391kg { font-family: 'Segoe UI', sans-serif; background-color: #f0f4f8; padding: 40px; }
-        .stButton > button { background-color: #007bff; color: white; font-size: 16px; border-radius: 8px; cursor: pointer; }
-        .stButton > button:hover { background-color: #0056b3; }
+        .css-1d391kg {{
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f0f4f8;
+            padding: 40px;
+            background-image: url('data:image/jpeg;base64,{background_image}');
+            background-size: cover;
+            background-position: center;
+            height: 100vh;
+            color: white;
+        }}
+        .stButton > button {{
+            background-color: #007bff;
+            color: white;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+        }}
+        .stButton > button:hover {{
+            background-color: #0056b3;
+        }}
+        .stTitle {{
+            color: white;
+        }}
+        .stMarkdown {{
+            color: white;
+        }}
     </style>
 """, unsafe_allow_html=True)
