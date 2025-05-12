@@ -34,7 +34,7 @@ st.set_page_config(
 
 # Local background image handling
 try:
-    image_path = "background.png"
+    image_path = "image.png"  # Make sure this matches your actual image filename
     background_image = get_base64_of_image(image_path)
 except FileNotFoundError:
     st.error("Background image not found! Please check the image file.")
@@ -45,20 +45,12 @@ st.markdown(f"""
     <style>
         /* Full-page background */
         .stApp {{
-            background-image: url('data:image/jpeg;base64,{background_image}');
+            background-image: url('data:image/png;base64,{background_image}');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
             background-attachment: fixed;
             min-height: 100vh;
-        }}
-
-        /* Content container styling */
-        .main {{
-            background-color: rgba(0, 0, 0, 0.6);
-            padding: 2rem;
-            border-radius: 15px;
-            backdrop-filter: blur(8px);
         }}
 
         /* Text styling */
@@ -101,40 +93,37 @@ st.markdown(f"""
             border-radius: 8px;
             background-color: rgba(255, 255, 255, 0.15);
         }}
+
+        /* Remove container padding */
+        .stContainer {{
+            padding: 0 !important;
+        }}
     </style>
 """, unsafe_allow_html=True)
 
-# Main content container
-with st.container():
-    st.markdown('<div class="main">', unsafe_allow_html=True)
-    
-    st.title("Student Performance Predictor 🎓")
-    st.markdown("Predict student outcomes based on academic and extracurricular performance")
+# Main content
+st.title("Student Performance Predictor 🎓")
+st.markdown("Predict student outcomes based on academic and extracurricular performance")
 
-    # Input fields for the form
-    col1, col2 = st.columns(2)
-    with col1:
-        marks = st.number_input("Internal Assessment Marks (0-100)", 
-                               min_value=0, max_value=100, value=70)
-        attendance = st.number_input("Attendance % (0-100)", 
-                                    min_value=0, max_value=100, value=80)
-    with col2:
-        assignments = st.number_input("Assignment Score (0-100)", 
-                                     min_value=0, max_value=100, value=60)
-        extra = st.number_input("Extracurricular Participation Score (0-100)", 
-                               min_value=0, max_value=100, value=50)
+# Input fields for the form
+col1, col2 = st.columns(2)
+with col1:
+    marks = st.number_input("Internal Assessment Marks (0-100)", 
+                           min_value=0, max_value=100, value=70)
+    attendance = st.number_input("Attendance % (0-100)", 
+                                min_value=0, max_value=100, value=80)
+with col2:
+    assignments = st.number_input("Assignment Score (0-100)", 
+                                 min_value=0, max_value=100, value=60)
+    extra = st.number_input("Extracurricular Participation Score (0-100)", 
+                           min_value=0, max_value=100, value=50)
 
-    # Prediction logic
-    if st.button("📊 Get Prediction"):
-        if all([val is not None for val in [marks, attendance, assignments, extra]]):
-            result = decision_tree_predict(marks, attendance, assignments, extra)
-            result_color = "#28a745" if result == "Pass" else "#dc3545"
-            st.markdown(f'<div class="prediction" style="color: {result_color}">Prediction: {result}</div>', 
-                        unsafe_allow_html=True)
-        else:
-            st.warning("Please fill in all fields before predicting.")
-
-    st.markdown('</div>', unsafe_allow_html=True)
-
-# Optional debug section (remove in production)
-# st.write(f"Image loaded: {background_image[:50] if background_image else 'None'}...")
+# Prediction logic
+if st.button("📊 Get Prediction"):
+    if all([val is not None for val in [marks, attendance, assignments, extra]]):
+        result = decision_tree_predict(marks, attendance, assignments, extra)
+        result_color = "#28a745" if result == "Pass" else "#dc3545"
+        st.markdown(f'<div class="prediction" style="color: {result_color}">Prediction: {result}</div>', 
+                    unsafe_allow_html=True)
+    else:
+        st.warning("Please fill in all fields before predicting.")
