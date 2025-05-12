@@ -1,92 +1,4 @@
-from flask import Flask, request, render_template_string
-
-app = Flask(__name__)
-
-# HTML + CSS Template as a single string
-HTML_PAGE = """
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Student Performance Predictor</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: #f0f4f8;
-            padding: 40px;
-        }
-        .container {
-            background: #ffffff;
-            padding: 30px;
-            border-radius: 12px;
-            max-width: 500px;
-            margin: auto;
-            box-shadow: 0px 0px 12px rgba(0, 0, 0, 0.1);
-        }
-        h2 {
-            text-align: center;
-            color: #333333;
-        }
-        label {
-            display: block;
-            margin-top: 15px;
-            font-weight: 500;
-        }
-        input[type="number"] {
-            width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-        }
-        button {
-            margin-top: 25px;
-            padding: 10px 15px;
-            width: 100%;
-            background-color: #007bff;
-            border: none;
-            color: white;
-            font-size: 16px;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .result {
-            margin-top: 25px;
-            font-size: 18px;
-            text-align: center;
-            font-weight: bold;
-            color: #2c3e50;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h2>Student Performance Predictor</h2>
-        <form method="POST">
-            <label for="marks">Internal Assessment Marks (0-100):</label>
-            <input type="number" name="marks" required min="0" max="100">
-
-            <label for="attendance">Attendance % (0-100):</label>
-            <input type="number" name="attendance" required min="0" max="100">
-
-            <label for="assignments">Assignment Score (0-100):</label>
-            <input type="number" name="assignments" required min="0" max="100">
-
-            <label for="extra">Extracurricular Participation Score (0-100):</label>
-            <input type="number" name="extra" required min="0" max="100">
-
-            <button type="submit">Predict</button>
-        </form>
-
-        {% if result %}
-            <div class="result">Prediction: {{ result }}</div>
-        {% endif %}
-    </div>
-</body>
-</html>
-"""
+import streamlit as st
 
 # Decision tree logic implemented manually
 def decision_tree_predict(marks, attendance, assignments, extra):
@@ -106,22 +18,28 @@ def decision_tree_predict(marks, attendance, assignments, extra):
     else:
         return "Fail"
 
-@app.route("/", methods=["GET", "POST"])
-def index():
-    result = None
-    if request.method == "POST":
-        try:
-            marks = int(request.form["marks"])
-            attendance = int(request.form["attendance"])
-            assignments = int(request.form["assignments"])
-            extra = int(request.form["extra"])
-            result = decision_tree_predict(marks, attendance, assignments, extra)
-        except ValueError:
-            result = "Invalid input. Please enter numbers between 0 and 100."
-    return render_template_string(HTML_PAGE, result=result)
+# Streamlit UI
+st.title("Student Performance Predictor")
 
-# Use this to prevent SystemExit errors in Jupyter or IDEs
-if __name__ == "__main__":
-    import os
-    port = int(os.environ.get("PORT", 5000))
-    app.run(debug=True, use_reloader=False, port=port)
+# Input fields for the form
+marks = st.number_input("Internal Assessment Marks (0-100)", min_value=0, max_value=100)
+attendance = st.number_input("Attendance % (0-100)", min_value=0, max_value=100)
+assignments = st.number_input("Assignment Score (0-100)", min_value=0, max_value=100)
+extra = st.number_input("Extracurricular Participation Score (0-100)", min_value=0, max_value=100)
+
+# Prediction logic
+if st.button("Predict"):
+    if marks is not None and attendance is not None and assignments is not None and extra is not None:
+        result = decision_tree_predict(marks, attendance, assignments, extra)
+        st.write(f"**Prediction: {result}**")
+    else:
+        st.write("Please enter all values.")
+
+# Styling (this part can be customized as needed)
+st.markdown("""
+    <style>
+        .css-1d391kg { font-family: 'Segoe UI', sans-serif; background-color: #f0f4f8; padding: 40px; }
+        .stButton > button { background-color: #007bff; color: white; font-size: 16px; border-radius: 8px; cursor: pointer; }
+        .stButton > button:hover { background-color: #0056b3; }
+    </style>
+""", unsafe_allow_html=True)
