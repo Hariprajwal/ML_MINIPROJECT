@@ -34,7 +34,7 @@ st.set_page_config(
 
 # Local background image handling
 try:
-    image_path = "background.jpeg"
+    image_path = "background.png"
     background_image = get_base64_of_image(image_path)
 except FileNotFoundError:
     st.error("Background image not found! Please check the image file.")
