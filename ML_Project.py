@@ -137,7 +137,7 @@ if st.button("🔮 Predict Performance"):
             result, confidence, color = make_prediction()
             st.markdown(
                 f'<div class="prediction" style="color: {color}">'
-                f'Prediction: {result} | Confidence: {confidence}%'</n                f'</div>',
+                f'Prediction: {result} |  Confidence: {confidence}%</div>',
                 unsafe_allow_html=True
             )
     except Exception as e:
