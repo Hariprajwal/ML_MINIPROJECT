@@ -3,12 +3,19 @@ import base64
 import os
 import numpy as np
 
-# Try to import joblib; fallback to pickle if unavailable
+# Page configuration MUST come before any other Streamlit calls
+st.set_page_config(
+    page_title="Student Performance Predictor",
+    page_icon="🎓",
+    layout="centered"
+)
+
+# Try to import joblib; fallback to pickle if unavailable (no Streamlit calls before config)
 try:
     import joblib
 except ImportError:
     import pickle as joblib
-    st.warning("joblib not installed; using pickle as a fallback. Consider adding 'joblib' to your requirements.txt.")
+    print("Warning: joblib not installed; using pickle as fallback. Add 'joblib' to requirements.txt.")
 
 # Function to encode an image file to base64 for embedding
 def get_base64_of_image(image_file: str) -> str:
@@ -19,7 +26,7 @@ def get_base64_of_image(image_file: str) -> str:
 @st.cache_resource
 def load_model_and_scaler(model_path: str, scaler_path: str):
     if not os.path.exists(model_path) or not os.path.exists(scaler_path):
-        st.error(f"Model or scaler file not found.\nExpected: {model_path}, {scaler_path}")
+        st.error(f"Model or scaler file not found. Expected: {model_path}, {scaler_path}")
         st.stop()
     model = joblib.load(model_path)
     scaler = joblib.load(scaler_path)
@@ -28,34 +35,25 @@ def load_model_and_scaler(model_path: str, scaler_path: str):
 # Paths to your artifacts
 MODEL_PATH = 'best_model.pkl'
 SCALER_PATH = 'scaler.pkl'
-
-# Attempt to load the model and scaler
+# Load model & scaler
 model, scaler = load_model_and_scaler(MODEL_PATH, SCALER_PATH)
 
-# Page configuration
-st.set_page_config(
-    page_title="Student Performance Predictor",
-    page_icon="🎓",
-    layout="centered"
-)
-
 # Embed background image if available
-image_path = "background.png"
-if os.path.exists(image_path):
-    try:
-        bg_encoded = get_base64_of_image(image_path)
-        css = f"""
-        <style>
-            .stApp {{
-                background: url('data:image/png;base64,{bg_encoded}') no-repeat center/cover fixed;
-            }}
-        </style>
-        """
-        st.markdown(css, unsafe_allow_html=True)
-    except Exception:
-        st.warning("Could not load background image.")
-else:
-    st.info("No background image found. Continuing without it.")
+def embed_background(image_path: str):
+    if os.path.exists(image_path):
+        try:
+            bg_encoded = get_base64_of_image(image_path)
+            css = f"""
+            <style>
+                .stApp {{ background: url('data:image/png;base64,{bg_encoded}') no-repeat center/cover fixed; }}
+            </style>
+            """
+            st.markdown(css, unsafe_allow_html=True)
+        except Exception:
+            st.warning("Could not load background image.")
+    else:
+        st.info("No background image found. Continuing without it.")
+embed_background("background.png")
 
 # App title and description
 st.title("Student Performance Predictor 🎓")
@@ -80,10 +78,11 @@ def make_prediction(marks, attendance, assignments, extra):
     color = "#28a745" if pred == 1 else "#dc3545"
     return label, round(proba, 1), color
 
+# Button and display
 if st.button("🔮 Predict Performance"):
     try:
-        values = [marks, attendance, assignments, extra]
-        if any(v < 0 or v > 100 for v in values):
+        vals = [marks, attendance, assignments, extra]
+        if any(v < 0 or v > 100 for v in vals):
             st.error("All input values must be between 0 and 100.")
         else:
             label, confidence, color = make_prediction(marks, attendance, assignments, extra)
@@ -95,12 +94,12 @@ if st.button("🔮 Predict Performance"):
     except Exception as e:
         st.error(f"An error occurred: {e}")
 
-# To run in Jupyter, first install dependencies:
+# Usage notes
+# To run in Jupyter:
 # !pip install streamlit numpy scikit-learn joblib
-# Then launch:
 # !streamlit run path/to/this_script.py
 
-# requirements.txt snippet (add to your repo):
+# requirements.txt entries:
 # streamlit
 # numpy
 # scikit-learn
