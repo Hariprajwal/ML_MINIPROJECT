@@ -2,7 +2,13 @@ import streamlit as st
 import base64
 import os
 import numpy as np
-import joblib
+
+# Try to import joblib; fallback to pickle if unavailable
+try:
+    import joblib
+except ImportError:
+    import pickle as joblib
+    st.warning("joblib not installed; using pickle as a fallback. Consider adding 'joblib' to your requirements.txt.")
 
 # Function to encode an image file to base64 for embedding
 def get_base64_of_image(image_file: str) -> str:
@@ -89,9 +95,10 @@ if st.button("🔮 Predict Performance"):
     except Exception as e:
         st.error(f"An error occurred: {e}")
 
-# To run in Jupyter, use:
+# To run in Jupyter, first install dependencies:
+# !pip install streamlit numpy scikit-learn joblib
+# Then launch:
 # !streamlit run path/to/this_script.py
-# Or run from terminal: streamlit run app.py
 
 # requirements.txt snippet (add to your repo):
 # streamlit
