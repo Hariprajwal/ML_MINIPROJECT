@@ -6,3 +6,10 @@ base64
 os
 numpy
 joblib
+
+
+requirements.txt snippet (add to your repo):
+# streamlit
+# numpy
+# scikit-learn
+# joblib
