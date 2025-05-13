@@ -5,3 +5,4 @@ pickle
 base64
 os
 numpy
+joblib
